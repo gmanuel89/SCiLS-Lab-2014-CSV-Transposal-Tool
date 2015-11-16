@@ -1,1 +1,1 @@
-# Public-Python
+# Public (Python scripts)
