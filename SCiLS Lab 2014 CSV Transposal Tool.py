@@ -3,28 +3,37 @@
 #################### SCiLS LAB 2014 CSV TRANSPOSAL TOOL ####################
 
 # Program version (Specified by the program writer!!!!)
-program_version = "2017.02.28.1"
+program_version = "2017.03.01.0"
 ### GitHub URL where the R file is
 github_url = "https://raw.githubusercontent.com/gmanuel89/Public-Python-UNIMIB/master/SCiLS%20Lab%202014%20CSV%20Transposal%20Tool.py"
 ### Name of the file when downloaded
 script_file_name = "SCiLS Lab 2014 CSV Transposal Tool.py"
 # Change log
-change_log = "1. Added the possibility to choose the separating character\n2.New GUI"
+change_log = "1. Added the possibility to choose the separating character\n2. Added the possibility to keep or not the file header"
 
 
 
 ############################## Load the required libraries (tkinter for the TCLTK GUI)
-import tkinter, os, platform
+import tkinter, os, platform, decimal
 #from tkinter import *
-from tkinter import messagebox, Label, Button, Entry, Tk, filedialog, font
+from tkinter import messagebox, Label, Button, Entry, Tk, filedialog, font, Radiobutton, StringVar
 
 
 
 ############################## Initialize the output_folder variable
 output_folder = os.getcwd()
 
+############################## Initialize the output file type variable
+file_type = "csv"
 
+############################## Initialize the separating character variable
+separating_character = ","
 
+############################## Initialize the variable which says if to preserve the header
+keep_header = True
+
+############################## Initialize the input_file variable
+input_file = ""
 
 
 
@@ -34,28 +43,42 @@ output_folder = os.getcwd()
 ########## FUNCTION: Check for updates (from my GitHub page) (it just updates the label telling the user if there are updates) (it updates the check for updates value that is called by the label)
 def check_for_updates_function():
     # Initialize the variable that displays the version number and the possible updates
-    global check_for_updates_value, update_available
+    global check_for_updates_value, update_available, online_change_log
     check_for_updates_value = program_version
     # Initialize the version
     online_version_number = None
     # Initialize the variable that says if there are updates
     update_available = False
+    ### Initialize the change log
+    online_change_log = "Bug fixes"
     try:
         # Import the library
         import urllib.request
-        # Retrieve the file from GitHub
-        github_file = urllib.request.urlopen(github_url).read()
-        # String conversion
-        github_file_string = str(github_file)
-        # Lines
-        github_file_lines = github_file_string.split("\\\\n")
-        # Get the first line, with the version number
-        first_block = github_file_lines[0].split("\\n")
+        # Retrieve the file from GitHub (read the lines: list with lines)
+        github_file_lines = urllib.request.urlopen(github_url).readlines()
+        # Decode the lines (from bytes to character)
+        for l in range(len(github_file_lines)):
+            github_file_lines[l] = github_file_lines[l].decode("utf-8")
         # Retrieve the version number
-        for line in first_block:
+        for line in github_file_lines:
             if line.startswith("program_version = "):
+                # Isolate the "variable" value
                 online_version_number = line.split("program_version = ")[1]
+                # Remove the quotes
                 online_version_number = online_version_number.split("\"")[1]
+        ### Retrieve the change log
+        for line in github_file_lines:
+            if line.startswith("change_log = "):
+                # Isolate the "variable" value
+                online_change_log = line.split("change_log = ")[1]
+                # Remove the quotes
+                online_change_log = online_change_log.split("\"")[1]
+                # Split at the \n
+                online_change_log_split = online_change_log.split("\\n")
+                # Put it back to the character
+                online_change_log = ""
+                for o in online_change_log_split:
+                    online_change_log = online_change_log + "\n" + o
         # Split the version number in YYYY.MM.DD
         online_version_YYYYMMDDVV = online_version_number.split(".")
         # Compare with the local version
@@ -119,6 +142,8 @@ def download_updates_function():
         if file_downloaded is True:
             Tk().withdraw()
             messagebox.showinfo(title="Updated file retrieved!", message="The update file named\n%s\nhas been retrieved and placed in\n%s" %(script_file_name, download_folder))
+            Tk().withdraw()
+            messagebox.showinfo(title="Changelog", message="The updated script contains the following changes:\n%s" %(online_change_log))
         else:
             Tk().withdraw()
             messagebox.showinfo(title="Connection problem", message="The updated script file could not be downloaded due to internet connection problems!\n\nManually download the updated script file at:\n\n%s" %(github_url))
@@ -137,12 +162,13 @@ def download_updates_function():
 
 
 
-########## FUNCTION: Select where to save the GCODE method file
+########## FUNCTION: Select where to save the transposed CSV file
 def select_output_folder_function():
     Tk().withdraw()
     messagebox.showinfo(title="Folder selection", message="Select where to dump the transposed CSV file(s)")
     # Where to save the GCODE file (escape function environment)
     global output_folder
+    tkinter.Tk().withdraw()
     output_folder = filedialog.askdirectory ()
     # Fix the possible non-defined output folder
     if output_folder == "":
@@ -160,20 +186,73 @@ def select_output_folder_function():
 
 
 
-########## FUNCTION: Select where to save the GCODE method file
+
+########## FUNCTION: Select the output file format
+def select_output_format_function():
+    # Escape the function
+    global file_type
+    global submit_output_format_value_subfunction
+    # Define the function which submits the valuento the program
+    def submit_output_format_value_subfunction():
+        global file_type
+        # Extract the values
+        file_type = file_type_entry.get()
+        # Default
+        #if file_type_input == "":
+            #file_type = "csv"
+        #else:
+            #file_type = str(file_type_input)
+        # Collapse the GUI Tk window
+        of_window.destroy()
+    ########## Main window
+    of_window = Tk()
+    of_window.title("Output format")
+    of_window.resizable(False,False)
+    # Radio buttons
+    file_type_csv = Radiobutton(of_window, text="Comma Separated Values (.csv)", variable=file_type_entry, value="csv", font=entry_font, justify="left")
+    file_type_txt = Radiobutton(of_window, text="Text file (.txt)", variable=file_type_entry, value=".txt", font=entry_font, justify="left")
+    # Default selection
+    file_type_csv.select()
+    file_type_txt.deselect()
+    # Positioning
+    file_type_csv.pack()
+    file_type_txt.pack()
+    # Submit button
+    Button(of_window, text='Submit', font = button_font, command=submit_output_format_value_subfunction).pack()
+    # Hold until quit
+    of_window.mainloop()
+
+
+
+
+
+
+
+
+
+
+
+
+########## FUNCTION: Select the CSV file to be transposed
 def select_input_csv_function():
     # Message for selection (open)
     tkinter.Tk().withdraw()
     tkinter.messagebox.showinfo(title="CSV selection", message="Select the CSV file to be transposed")
     # Escape the function
     global input_file
+    # Move to the working directory (set)
+    os.chdir(output_folder)
     # CSV file selection
     tkinter.Tk().withdraw()
     input_file = tkinter.filedialog.askopenfilename(filetypes=[('CSV files','.csv'),('TXT files','.txt')])
-    # Message for selection
-    tkinter.Tk().withdraw()
-    tkinter.messagebox.showinfo(title="CSV selected", message="The selected CSV file is:\n\n" + input_file)
-
+    if input_file != "":
+        # Message for selection
+        tkinter.Tk().withdraw()
+        tkinter.messagebox.showinfo(title="CSV selected", message="The selected CSV file is:\n\n" + input_file)
+    else:
+        # Message for selection
+        tkinter.Tk().withdraw()
+        tkinter.messagebox.showinfo(title="No CSV selected", message="No CSV file has been selected!!")
 
 
 
@@ -185,46 +264,84 @@ def select_input_csv_function():
 
 ########## FUNCTION: CSV transposal
 def csv_transposal_function():
-    ###### Transposal script
-    ### Open the input file (in a temporary variable f)
-    with open(input_file) as f:
-        # Read the csv lines
-        csv_file_lines = f.readlines()
-        # Create the empty lists for m/z and intensity
-        csv_mz_column = None
-        csv_int_column = None
-        # Scroll the lines of the CSV file...
-        for line in csv_file_lines:
-            # Discard the non-informative lines (keep only the m/z and the intensities lines)
-            if line.startswith("m/z"):
-                # Add the values in the row to the vector that will become the column
-                csv_mz_column = line
-            if line.startswith("intensities"):
-                # Add the values in the row to the vector that will become the column
-                csv_int_column = line
-        # Split the lines at the comma
-        csv_mz_column_split = csv_mz_column.split(",")
-        csv_int_column_split = csv_int_column.split(",")
-    # Move to the working directory (set)
-    os.chdir(output_folder)
-    # Get the filename from the GUI entry
+    ### Get the values from the entries
+    # Keep header
+    keep_header_input = keep_header_entry.get()
+    if keep_header_input == "y":
+        keep_header = True
+    else:
+        keep_header = False
+    # Output file
     output_file = filename_entry.get()
-    # Add the extension to the file automatically
-    if ".csv" not in output_file:
-        output_file = str(output_file) + ".csv"
-    ### Open the output file (in a temporary variable f)
-    with open(output_file, 'w') as f:
-        # Create the empty lists for the transposed CSV lines
-        t_csv_rows = []
-        # Write the transposed file's CSV rows
-        for i in range(len(csv_mz_column_split)):
-            t_csv_rows.append(csv_mz_column_split[i].strip() + "," + csv_int_column_split[i].strip() + "\n")
-        # Write the output lines
-        for line in t_csv_rows:
-            f.writelines(line)
-    ### Message for completion
-    tkinter.Tk().withdraw()
-    tkinter.messagebox.showinfo(title="CSV transposed!!!", message="The CSV file has been succesfully transposed!")
+    # Separating character
+    separating_character = separating_character_entry.get()
+    # File type
+    file_type = file_type_entry.get()
+    ###### Transposal script
+    if input_file != "":
+        ### Open the input file (in a temporary variable f)
+        with open(input_file) as f:
+            # Read the csv lines
+            csv_file_lines = f.readlines()
+            # Create the empty lists for m/z and intensity
+            csv_mz_column = []
+            csv_int_column = []
+            # Scroll the lines of the CSV file...
+            for line in csv_file_lines:
+                # Discard the non-informative lines (keep only the m/z and the intensities lines)
+                if line.startswith("m/z"):
+                    # Add the values in the row to the vector that will become the column
+                    csv_mz_column = line
+                if line.startswith("intensities"):
+                    # Add the values in the row to the vector that will become the column
+                    csv_int_column = line
+            # Split the lines at the comma
+            csv_mz_column_split = csv_mz_column.split(",")
+            csv_int_column_split = csv_int_column.split(",")
+            # Isolate the header from everything else
+            csv_mz_column_header = csv_mz_column_split[0]
+            csv_mz_column_values = csv_mz_column_split[1:len(csv_mz_column_split)]
+            csv_int_column_header = csv_int_column_split[0]
+            csv_int_column_values = csv_int_column_split[1:len(csv_int_column_split)]
+            # Convert the values in a simple way (from 3e-003 to 0.003)
+            for i in range(len(csv_mz_column_values)):
+                csv_mz_column_values[i] = str(decimal.Decimal(csv_mz_column_values[i]))
+            for i in range(len(csv_int_column_values)):
+                csv_int_column_values[i] = str(decimal.Decimal(csv_int_column_values[i]))
+        # Try to append the date and time to the filename (so if someone presses the 'Dump file' button without changing the name it does not overwrite it, because there is a different time appended)
+        try:
+            import time
+            current_date = time.strftime("%Y%m%d-%H.%M.%S")
+            output_file = output_file + " (" + current_date + ")"
+        except:
+            pass
+        # Add the extension to the file automatically
+        if ("." + file_type) not in output_file:
+            output_file = str(output_file) + "." + file_type
+        # Move to the working directory (set)
+        os.chdir(output_folder)
+        ### Open the output file (in a temporary variable f)
+        with open(output_file, 'w') as f:
+            # Create the empty lists for the transposed CSV lines
+            t_csv_rows = []
+            # Write the transposed file's CSV rows
+            if keep_header is True:
+                t_csv_rows.append(csv_mz_column_header.strip() + separating_character + csv_int_column_header.strip() + "\n")
+            else:
+                pass
+            for i in range(len(csv_mz_column_values)):
+                t_csv_rows.append(csv_mz_column_values[i].strip() + separating_character + csv_int_column_values[i].strip() + "\n")
+            # Write the output lines
+            for line in t_csv_rows:
+                f.writelines(line)
+        ### Message for completion
+        tkinter.Tk().withdraw()
+        tkinter.messagebox.showinfo(title="CSV transposed!!!", message="The CSV file named\n\n%s\n\nhas been succesfully transposed!" %(output_file))
+    else:
+        ### Message for completion
+        tkinter.Tk().withdraw()
+        tkinter.messagebox.showinfo(title="No CSV file", message="Select a CSV file to be transposed first!")
+
 
 
 
@@ -237,7 +354,7 @@ def csv_transposal_function():
 ########## FUNCTION: Close the program
 def close_program_function():
     # Collapse the GUI Tk window
-    window.destroy
+    window.destroy()
     # Quit the Python session
     quit()
 
@@ -337,6 +454,7 @@ elif system_os == "Linux":
         label_font = liberation_other_normal
         entry_font = liberation_other_normal
         button_font = liberation_other_bold
+# macOS
 elif system_os == "Mac":
     # Define the fonts
     helvetica_title_bold = font.Font(family = "Helvetica", size = title_font_size, weight = "bold")
@@ -362,27 +480,67 @@ else:
 
 
 ########## Labels (with grid positioning)
-title_label = Label(window, text="SCiLS Lab 2014 CSV Transposal Tool", font=title_font).grid(row=0,column=1)
-check_for_updates_label = Label(window, text=check_for_updates_value, font=label_font).grid(row=1, column=2)
-label_1 = Label(window, text="1. Select the input CSV file", font=label_font).grid(row=2, column=0)
-label_2 = Label(window, text="2. Browse where to save the\ntransposed CSV file", font=label_font).grid(row=3, column=0)
-label_3 = Label(window, text="3. Select the name of the\ntransposed CSV file", font=label_font).grid(row=4, column=0)
-label_4 = Label(window, text="4. Transpose the CSV file", font=label_font).grid(row=5, column=0)
-label_5 = Label(window, text="5. Quit or restart from 1", font=label_font).grid(row=6, column=0)
+title_label = Label(window, text="SCiLS Lab 2014\nCSV Transposal Tool", font=title_font).grid(row=0,column=0)
+check_for_updates_label = Label(window, text=check_for_updates_value, font=label_font).grid(row=0, column=3)
+
+
+# Initialize the radio button variable
+file_type_entry = StringVar()
+keep_header_entry = StringVar()
+separating_character_entry = StringVar()
+
+
 
 ########## Entry boxes / Radiobuttons (with positioning)
 filename_entry = Entry(window, font=entry_font, justify="center")
 filename_entry.insert(0,"Transposed CSV file")
-filename_entry.grid(row=4, column=1)
+filename_entry.grid(row=4, column=0)
+### Keep header
+keep_header_yes = Radiobutton(window, text="Yes", variable=keep_header_entry, value="y", font=entry_font, justify="left")
+keep_header_no = Radiobutton(window, text="No", variable=keep_header_entry, value="n", font=entry_font, justify="left")
+# Default selection
+keep_header_yes.select()
+keep_header_no.deselect()
+# Positioning
+keep_header_yes.grid(row=3, column=1)
+keep_header_no.grid(row=4, column=1)
+### Separating character
+separating_character_tab = Radiobutton(window, text="Tab", variable=separating_character_entry, value="\t", font=entry_font, justify="left")
+separating_character_space = Radiobutton(window, text="Space", variable=separating_character_entry, value=" ", font=entry_font, justify="left")
+separating_character_comma = Radiobutton(window, text="Comma", variable=separating_character_entry, value=",", font=entry_font, justify="left")
+separating_character_semicolon = Radiobutton(window, text="Semicolon", variable=separating_character_entry, value=";", font=entry_font, justify="left")
+# Default selection
+separating_character_comma.select()
+separating_character_tab.deselect()
+separating_character_space.deselect()
+separating_character_semicolon.deselect()
+# Positioning
+separating_character_comma.grid(row=3, column=2)
+separating_character_tab.grid(row=4, column=2)
+separating_character_space.grid(row=5, column=2)
+separating_character_semicolon.grid(row=6, column=2)
+### File type
+file_type_csv = Radiobutton(window, text="Comma Separated Values (.csv)", variable=file_type_entry, value="csv", font=entry_font, justify="left")
+file_type_txt = Radiobutton(window, text="Text file (.txt)", variable=file_type_entry, value="txt", font=entry_font, justify="left")
+# Default selection
+file_type_csv.select()
+file_type_txt.deselect()
+# Positioning
+file_type_csv.grid(row=3, column=3)
+file_type_txt.grid(row=4, column=3)
+
 
 ########## Buttons (with positioning)
-Button(window, text='Input CSV file...', font = button_font, command=select_input_csv_function).grid(row=2, column=1)
-Button(window, text='Quit', font = button_font, command=close_program_function).grid(row=6, column=1)
+Button(window, text='Input CSV file...', font = button_font, command=select_input_csv_function).grid(row=3, column=0)
+Label(window, text='Choose the separating\ncharacter', font = label_font).grid(row=2, column=2)
+Label(window, text='Choose whether to\nkeep the header', font = label_font).grid(row=2, column=1)
+Label(window, text='Choose the output\nfile type', font = label_font).grid(row=2, column=3)
+Button(window, text='Quit', font = button_font, command=close_program_function).grid(row=6, column=0)
 # Dump the file
-Button(window, text='Transpose CSV and Save', font = button_font, command=csv_transposal_function).grid(row=5, column=1)
+Button(window, text='Transpose CSV and Save', font = button_font, command=csv_transposal_function).grid(row=5, column=0)
 # Output folder
-Button(window, text="Browse output folder", font = button_font, command=select_output_folder_function).grid(row=3, column=1)
+Button(window, text="Browse output folder", font = button_font, command=select_output_folder_function).grid(row=2, column=0)
 # Download updates
-Button(window, text="Download updates", relief = "raised", command=download_updates_function).grid(row=1, column=1)
+Button(window, text="Download\nupdates", font = button_font, relief = "raised", command=download_updates_function).grid(row=0, column=2)
 # Hold until quit
 window.mainloop()
