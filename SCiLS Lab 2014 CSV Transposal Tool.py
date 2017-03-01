@@ -9,7 +9,7 @@ github_url = "https://raw.githubusercontent.com/gmanuel89/Public-Python-UNIMIB/m
 ### Name of the file when downloaded
 script_file_name = "SCiLS Lab 2014 CSV Transposal Tool.py"
 # Change log
-change_log = "1. Added the possibility to choose the separating character\n2. Added the possibility to keep or not the file header"
+change_log = "1. Added the possibility to choose the separating character\n2. Added the possibility to keep or not the file header\n3. Added the possibility to change the output file format"
 
 
 
