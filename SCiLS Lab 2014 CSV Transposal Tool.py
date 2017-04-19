@@ -3,13 +3,13 @@
 #################### SCiLS LAB 2014 CSV TRANSPOSAL TOOL ####################
 
 # Program version (Specified by the program writer!!!!)
-program_version = "2017.03.01.0"
+program_version = "2017.04.19.0"
 ### GitHub URL where the R file is
 github_url = "https://raw.githubusercontent.com/gmanuel89/Public-Python-UNIMIB/master/SCiLS%20Lab%202014%20CSV%20Transposal%20Tool.py"
 ### Name of the file when downloaded
 script_file_name = "SCiLS Lab 2014 CSV Transposal Tool.py"
 # Change log
-change_log = "1. Added the possibility to choose the separating character\n2. Added the possibility to keep or not the file header\n3. Added the possibility to change the output file format"
+change_log = "1. New look!"
 
 
 
@@ -351,6 +351,19 @@ def csv_transposal_function():
 
 
 
+########## FUNCTION: Show the iMatrixSpray Method Gcode Generator info
+def show_info():
+    Tk().withdraw()
+    messagebox.showinfo(title="Info", message="This tool takes as input the CSV that is exported from SCiLS Lab 2014 software: it removes the additional information and only keeps the m/z and intensity values; then it transposes it, so that the CSV file can be easily imported into other programs such as mMass or Microsoft Excel")
+
+
+
+
+
+
+
+
+
 ########## FUNCTION: Close the program
 def close_program_function():
     # Collapse the GUI Tk window
@@ -377,6 +390,7 @@ check_for_updates_function()
 window = Tk()
 window.title("SCiLS Lab 2014 CSV Transposal Tool")
 window.resizable(False,False)
+window.configure(background = "white")
 #window.wm_minsize(width=550, height=600)
 
 # Get the resolution of the screen (to adjust the font size accordingly)
@@ -424,11 +438,17 @@ elif system_os == "Linux":
         ubuntu_title_bold = font.Font(family = "Ubuntu", size = title_font_size, weight = "bold")
         ubuntu_other_normal = font.Font(family = "Ubuntu", size = other_font_size, weight = "normal")
         ubuntu_other_bold = font.Font(family = "Ubuntu", size = other_font_size, weight = "bold")
+        bitstream_charter_title_bold = font.Font(family = "Bitstream Charter", size = title_font_size, weight = "bold")
+        bitstream_charter_other_normal = font.Font(family = "Bitstream Charter", size = other_font_size, weight = "normal")
+        bitstream_charter_other_bold = font.Font(family = "Bitstream Charter", size = other_font_size, weight = "bold")
+        liberation_title_bold = font.Font(family = "Liberation Sans", size = title_font_size, weight = "bold")
+        liberation_other_normal = font.Font(family = "Liberation Sans", size = other_font_size, weight = "normal")
+        liberation_other_bold = font.Font(family = "Liberation Sans", size = other_font_size, weight = "bold")
         # Use them in the GUI
-        title_font = ubuntu_title_bold
-        label_font = ubuntu_other_normal
-        entry_font = ubuntu_other_normal
-        button_font = ubuntu_other_bold
+        title_font = bitstream_charter_title_bold
+        label_font = bitstream_charter_other_normal
+        entry_font = bitstream_charter_other_normal
+        button_font = bitstream_charter_other_bold
     # Fedora
     elif "Fedora" in linux_distro or "Fedora" in os_version:
         # Define the fonts
@@ -480,8 +500,8 @@ else:
 
 
 ########## Labels (with grid positioning)
-title_label = Label(window, text="SCiLS Lab 2014\nCSV Transposal Tool", font=title_font).grid(row=0,column=0)
-check_for_updates_label = Label(window, text=check_for_updates_value, font=label_font).grid(row=0, column=3)
+title_label = Button(window, text="SCiLS Lab 2014\nCSV Transposal Tool", relief = "flat", command = show_info, background = "white", font = title_font)
+check_for_updates_label = Label(window, text=check_for_updates_value, font=label_font, background = "white")
 
 
 # Initialize the radio button variable
@@ -494,53 +514,67 @@ separating_character_entry = StringVar()
 ########## Entry boxes / Radiobuttons (with positioning)
 filename_entry = Entry(window, font=entry_font, justify="center")
 filename_entry.insert(0,"Transposed CSV file")
-filename_entry.grid(row=4, column=0)
 ### Keep header
-keep_header_yes = Radiobutton(window, text="Yes", variable=keep_header_entry, value="y", font=entry_font, justify="left")
-keep_header_no = Radiobutton(window, text="No", variable=keep_header_entry, value="n", font=entry_font, justify="left")
+keep_header_yes = Radiobutton(window, text="Yes", variable=keep_header_entry, value="y", font=entry_font, justify="left", background = "white")
+keep_header_no = Radiobutton(window, text="No", variable=keep_header_entry, value="n", font=entry_font, justify="left", background = "white")
 # Default selection
 keep_header_yes.select()
 keep_header_no.deselect()
-# Positioning
-keep_header_yes.grid(row=3, column=1)
-keep_header_no.grid(row=4, column=1)
 ### Separating character
-separating_character_tab = Radiobutton(window, text="Tab", variable=separating_character_entry, value="\t", font=entry_font, justify="left")
-separating_character_space = Radiobutton(window, text="Space", variable=separating_character_entry, value=" ", font=entry_font, justify="left")
-separating_character_comma = Radiobutton(window, text="Comma", variable=separating_character_entry, value=",", font=entry_font, justify="left")
-separating_character_semicolon = Radiobutton(window, text="Semicolon", variable=separating_character_entry, value=";", font=entry_font, justify="left")
+separating_character_tab = Radiobutton(window, text="Tab", variable=separating_character_entry, value="\t", font=entry_font, justify="left", background = "white")
+separating_character_space = Radiobutton(window, text="Space", variable=separating_character_entry, value=" ", font=entry_font, justify="left", background = "white")
+separating_character_comma = Radiobutton(window, text="Comma", variable=separating_character_entry, value=",", font=entry_font, justify="left", background = "white")
+separating_character_semicolon = Radiobutton(window, text="Semicolon", variable=separating_character_entry, value=";", font=entry_font, justify="left", background = "white")
 # Default selection
 separating_character_comma.select()
 separating_character_tab.deselect()
 separating_character_space.deselect()
 separating_character_semicolon.deselect()
-# Positioning
-separating_character_comma.grid(row=3, column=2)
-separating_character_tab.grid(row=4, column=2)
-separating_character_space.grid(row=5, column=2)
-separating_character_semicolon.grid(row=6, column=2)
 ### File type
-file_type_csv = Radiobutton(window, text="Comma Separated Values (.csv)", variable=file_type_entry, value="csv", font=entry_font, justify="left")
-file_type_txt = Radiobutton(window, text="Text file (.txt)", variable=file_type_entry, value="txt", font=entry_font, justify="left")
+file_type_csv = Radiobutton(window, text="Comma Separated Values (.csv)", variable=file_type_entry, value="csv", font=entry_font, justify="left", background = "white")
+file_type_txt = Radiobutton(window, text="Text file (.txt)", variable=file_type_entry, value="txt", font=entry_font, justify="left", background = "white")
 # Default selection
 file_type_csv.select()
 file_type_txt.deselect()
-# Positioning
-file_type_csv.grid(row=3, column=3)
-file_type_txt.grid(row=4, column=3)
 
 
-########## Buttons (with positioning)
-Button(window, text='Input CSV file...', font = button_font, command=select_input_csv_function).grid(row=3, column=0)
-Label(window, text='Choose the separating\ncharacter', font = label_font).grid(row=2, column=2)
-Label(window, text='Choose whether to\nkeep the header', font = label_font).grid(row=2, column=1)
-Label(window, text='Choose the output\nfile type', font = label_font).grid(row=2, column=3)
-Button(window, text='Quit', font = button_font, command=close_program_function).grid(row=6, column=0)
+########## Buttons
+select_input_button = Button(window, text='IMPORT CSV FILE...', font = button_font, command=select_input_csv_function, background = "white")
+separating_character_label = Label(window, text='Choose the separating\ncharacter', font = label_font, background = "white")
+keep_header_label = Label(window, text='Choose whether to\nkeep the header', font = label_font, background = "white")
+input_file_type_label = Label(window, text='Choose the output\nfile type', font = label_font, background = "white")
+quit_button = Button(window, text='QUIT', font = button_font, command=close_program_function, background = "white")
 # Dump the file
-Button(window, text='Transpose CSV and Save', font = button_font, command=csv_transposal_function).grid(row=5, column=0)
+dump_file_button = Button(window, text='TRANSPOSE CSV\nAND SAVE', font = button_font, command=csv_transposal_function, background = "white")
 # Output folder
-Button(window, text="Browse output folder", font = button_font, command=select_output_folder_function).grid(row=2, column=0)
+browse_output_button = Button(window, text="BROWSE OUTPUT FOLDER...", font = button_font, command=select_output_folder_function, background = "white")
 # Download updates
-Button(window, text="Download\nupdates", font = button_font, relief = "raised", command=download_updates_function).grid(row=0, column=2)
+download_update_button = Button(window, text="DOWNLOAD\nUPDATE", font = button_font, relief = "raised", command=download_updates_function, background = "white")
+
+
+########## Positioning
+# Labels
+title_label.grid(row=0,column=0, padx = 20, pady = 20)
+check_for_updates_label.grid(row=0, column=3, padx = 10, pady = 10)
+# Entries and Radiobuttons
+filename_entry.grid(row=4, column=0, padx = 10, pady = 10)
+keep_header_yes.grid(row=3, column=1, padx = 10, pady = 10)
+keep_header_no.grid(row=4, column=1, padx = 10, pady = 10)
+separating_character_comma.grid(row=3, column=2, padx = 10, pady = 10)
+separating_character_tab.grid(row=4, column=2, padx = 10, pady = 10)
+separating_character_space.grid(row=5, column=2, padx = 10, pady = 10)
+separating_character_semicolon.grid(row=6, column=2, padx = 10, pady = 10)
+file_type_csv.grid(row=3, column=3, padx = 10, pady = 10)
+file_type_txt.grid(row=4, column=3, padx = 10, pady = 10)
+# Buttons
+select_input_button.grid(row=3, column=0, padx = 10, pady = 10)
+separating_character_label.grid(row=2, column=2, padx = 10, pady = 10)
+keep_header_label.grid(row=2, column=1, padx = 10, pady = 10)
+input_file_type_label.grid(row=2, column=3, padx = 10, pady = 10)
+quit_button.grid(row=6, column=0, padx = 10, pady = 10)
+dump_file_button.grid(row=5, column=0, padx = 10, pady = 10)
+browse_output_button.grid(row=2, column=0, padx = 10, pady = 10)
+download_update_button.grid(row=0, column=2, padx = 10, pady = 10)
+
 # Hold until quit
 window.mainloop()
