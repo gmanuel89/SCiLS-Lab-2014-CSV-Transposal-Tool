@@ -3,11 +3,13 @@
 #################### SCiLS LAB 2014 CSV TRANSPOSAL TOOL ####################
 
 # Program version (Specified by the program writer!!!!)
-program_version = "2017.04.19.0"
+program_version = "2017.05.23.0"
 ### GitHub URL where the R file is
 github_url = "https://raw.githubusercontent.com/gmanuel89/Public-Python-UNIMIB/master/SCiLS%20Lab%202014%20CSV%20Transposal%20Tool.py"
+### GitHub URL of the program's WIKI
+github_wiki_url = "https://github.com/gmanuel89/Public-Python-UNIMIB/wiki/SCiLS-Lab-2014-CSV-Transposal-Tool"
 ### Name of the file when downloaded
-script_file_name = "SCiLS Lab 2014 CSV Transposal Tool.py"
+script_file_name = "SCiLS Lab 2014 CSV Transposal Tool"
 # Change log
 change_log = "1. New look!"
 
@@ -43,7 +45,7 @@ input_file = ""
 ########## FUNCTION: Check for updates (from my GitHub page) (it just updates the label telling the user if there are updates) (it updates the check for updates value that is called by the label)
 def check_for_updates_function():
     # Initialize the variable that displays the version number and the possible updates
-    global check_for_updates_value, update_available, online_change_log
+    global check_for_updates_value, update_available, online_change_log, online_version_number
     check_for_updates_value = program_version
     # Initialize the version
     online_version_number = None
@@ -135,7 +137,7 @@ def download_updates_function():
             import urllib.request
             # Download the new file in the working directory
             os.chdir(download_folder)
-            urllib.request.urlretrieve (github_url, script_file_name)
+            urllib.request.urlretrieve (github_url, "%s (%s).py" %(script_file_name, online_version_number))
             file_downloaded = True
         except:
             pass
@@ -353,8 +355,15 @@ def csv_transposal_function():
 
 ########## FUNCTION: Show the iMatrixSpray Method Gcode Generator info
 def show_info():
-    Tk().withdraw()
-    messagebox.showinfo(title="Info", message="This tool takes as input the CSV that is exported from SCiLS Lab 2014 software: it removes the additional information and only keeps the m/z and intensity values; then it transposes it, so that the CSV file can be easily imported into other programs such as mMass or Microsoft Excel")
+    # Retrieve the system
+    system_os = platform.system()
+    if system_os == "Linux":
+        os.system("xdg-open " + github_wiki_url)
+    elif system_os == "Darwin":
+        os.system("open " + github_wiki_url)
+    elif system_os == "Windows":
+        os.system("cmd /c start " + github_wiki_url)
+
 
 
 
