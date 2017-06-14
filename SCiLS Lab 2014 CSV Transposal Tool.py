@@ -3,7 +3,9 @@
 #################### SCiLS LAB 2014 CSV TRANSPOSAL TOOL ####################
 
 # Program version (Specified by the program writer!!!!)
-program_version = "2017.05.23.0"
+program_version = "2017.06.14.0"
+### Force update (in case something goes wrong after an update, when checking for updates and reading the variable force_update, the script can automatically download the latest working version, even if the rest of the script is corrupted, because it is the first thing that reads)
+force_update = False
 ### GitHub URL where the R file is
 github_url = "https://raw.githubusercontent.com/gmanuel89/Public-Python-UNIMIB/master/SCiLS%20Lab%202014%20CSV%20Transposal%20Tool.py"
 ### GitHub URL of the program's WIKI
@@ -45,10 +47,12 @@ input_file = ""
 ########## FUNCTION: Check for updates (from my GitHub page) (it just updates the label telling the user if there are updates) (it updates the check for updates value that is called by the label)
 def check_for_updates_function():
     # Initialize the variable that displays the version number and the possible updates
-    global check_for_updates_value, update_available, online_change_log, online_version_number
+    global check_for_updates_value, update_available, online_change_log, online_version_number, online_force_update
     check_for_updates_value = program_version
     # Initialize the version
     online_version_number = None
+    ### Initialize the force update
+    online_force_update = False
     # Initialize the variable that says if there are updates
     update_available = False
     ### Initialize the change log
@@ -68,6 +72,19 @@ def check_for_updates_function():
                 online_version_number = line.split("program_version = ")[1]
                 # Remove the quotes
                 online_version_number = online_version_number.split("\"")[1]
+        ### Retrieve the online force update
+        for line in github_file_lines:
+            if line.startswith("force_update = "):
+                # Isolate the "variable" value
+                online_force_update = line.split("force_update = ")[1]
+                # Split at the \n
+                online_force_update = online_force_update.split("\n")[0]
+            if online_force_update == "False":
+                online_force_update = False
+            elif online_force_update == "True":
+                online_force_update = True
+            elif online_force_update is None:
+                online_force_update = False
         ### Retrieve the change log
         for line in github_file_lines:
             if line.startswith("change_log = "):
@@ -76,7 +93,7 @@ def check_for_updates_function():
                 # Remove the quotes
                 online_change_log = online_change_log.split("\"")[1]
                 # Split at the \n
-                online_change_log_split = online_change_log.split("\\n")
+                online_change_log_split = online_change_log.split("\n")
                 # Put it back to the character
                 online_change_log = ""
                 for o in online_change_log_split:
@@ -85,10 +102,18 @@ def check_for_updates_function():
         online_version_YYYYMMDDVV = online_version_number.split(".")
         # Compare with the local version
         local_version_YYYYMMDDVV = program_version.split(".")
-        for v in range(len(local_version_YYYYMMDDVV)):
-            if local_version_YYYYMMDDVV[v] < online_version_YYYYMMDDVV[v]:
+        ### Check the versions (from year to day)
+        if local_version_YYYYMMDDVV[0] < online_version_YYYYMMDDVV[0]:
+            update_available = True
+        if update_available is False:
+            if (local_version_YYYYMMDDVV[0] == online_version_YYYYMMDDVV[0]) and (local_version_YYYYMMDDVV[1] < online_version_YYYYMMDDVV[1]):
                 update_available = True
-                break
+        if update_available is False:
+            if (local_version_YYYYMMDDVV[0] == online_version_YYYYMMDDVV[0]) and (local_version_YYYYMMDDVV[1] == online_version_YYYYMMDDVV[1]) and (local_version_YYYYMMDDVV[2] < online_version_YYYYMMDDVV[2]):
+                update_available = True
+        if update_available is False:
+            if (local_version_YYYYMMDDVV[0] == online_version_YYYYMMDDVV[0]) and (local_version_YYYYMMDDVV[1] == online_version_YYYYMMDDVV[1]) and (local_version_YYYYMMDDVV[2] == online_version_YYYYMMDDVV[2]) and (local_version_YYYYMMDDVV[3] < online_version_YYYYMMDDVV[3]):
+                update_available = True
         # Return messages
         if online_version_number is None:
             # The version number could not be ckecked due to internet problems
@@ -96,7 +121,7 @@ def check_for_updates_function():
         else:
             if update_available is True:
                 # The version number could not be ckecked due to internet problems
-                check_for_updates_value = "Version: %s\nUpdates available: %s" %(program_version, online_version_number)
+                check_for_updates_value = "Version: %s\nUpdate available:\n%s" %(program_version, online_version_number)
             else:
                 check_for_updates_value = "Version: %s\nNo updates available" %(program_version)
     # Something went wrong: library not installed, retrieving failed, errors in parsing the version number
@@ -119,7 +144,7 @@ def download_updates_function():
     # Initialize the variable that displays the version number
     global check_for_updates_value
     # Download updates only if there are updates available
-    if update_available is True:
+    if update_available is True or online_force_update is True:
         # Initialize the variable which says if the file has been downloaded successfully
         file_downloaded = False
         # Choose where to save the updated script
@@ -131,21 +156,21 @@ def download_updates_function():
             download_folder = os.getcwd()
         # Just to confirm...
         Tk().withdraw()
-        messagebox.showinfo(title="Folder selected", message="The updated file will be downloaded in:\n\n'%s'" %(download_folder))
+        messagebox.showinfo(title="Folder selected", message="The updated script file will be downloaded in:\n\n'%s'" %(download_folder))
         try:
             # Import the library
             import urllib.request
             # Download the new file in the working directory
             os.chdir(download_folder)
-            urllib.request.urlretrieve (github_url, "%s (%s).py" %(script_file_name, online_version_number))
+            urllib.request.urlretrieve (github_url, "%s.py" %(script_file_name))
             file_downloaded = True
         except:
             pass
         if file_downloaded is True:
             Tk().withdraw()
-            messagebox.showinfo(title="Updated file retrieved!", message="The update file named\n%s\nhas been retrieved and placed in\n%s" %(script_file_name, download_folder))
+            messagebox.showinfo(title="Updated file retrieved!", message="The update file named\n\n%s\nhas been retrieved and placed in\n\n%s" %(script_file_name, download_folder))
             Tk().withdraw()
-            messagebox.showinfo(title="Changelog", message="The updated script contains the following changes:\n%s" %(online_change_log))
+            messagebox.showinfo(title="Changelog", message="The updated script contains the following changes:\n\n%s" %(online_change_log))
         else:
             Tk().withdraw()
             messagebox.showinfo(title="Connection problem", message="The updated script file could not be downloaded due to internet connection problems!\n\nManually download the updated script file at:\n\n%s" %(github_url))
@@ -154,6 +179,14 @@ def download_updates_function():
         Tk().withdraw()
         messagebox.showinfo(title="No updates available", message="No updates available!")
 
+
+
+
+### Downloading forced updates
+check_for_updates_function()
+
+if online_force_update is True:
+    download_updates_function()
 
 
 
@@ -392,8 +425,6 @@ def close_program_function():
 
 
 ############################## TCL-TK WINDOW
-##### Check for updates
-check_for_updates_function()
 
 ########## Main window
 window = Tk()
