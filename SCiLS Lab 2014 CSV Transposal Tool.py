@@ -9,7 +9,7 @@ force_update = False
 ### GitHub URL where the R file is
 github_url = "https://raw.githubusercontent.com/gmanuel89/Public-Python-UNIMIB/master/SCiLS%20Lab%202014%20CSV%20Transposal%20Tool.py"
 ### GitHub URL of the program's WIKI
-github_wiki_url = "https://github.com/gmanuel89/Public-Python-UNIMIB/wiki/SCiLS-Lab-2014-CSV-Transposal-Tool"
+github_wiki_url = "https://github.com/gmanuel89/SCiLS-Lab-2014-CSV-Transposal-Tool"
 ### Name of the file when downloaded
 script_file_name = "SCiLS Lab 2014 CSV Transposal Tool"
 # Change log
