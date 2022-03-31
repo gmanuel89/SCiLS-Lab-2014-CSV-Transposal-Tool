@@ -3,11 +3,11 @@
 #################### SCiLS LAB 2014 CSV TRANSPOSAL TOOL ####################
 
 # Program version (Specified by the program writer!!!!)
-program_version = "2017.06.14.0"
+program_version = "2017.06.14.1"
 ### Force update (in case something goes wrong after an update, when checking for updates and reading the variable force_update, the script can automatically download the latest working version, even if the rest of the script is corrupted, because it is the first thing that reads)
 force_update = False
 ### GitHub URL where the R file is
-github_url = "https://raw.githubusercontent.com/gmanuel89/Public-Python-UNIMIB/master/SCiLS%20Lab%202014%20CSV%20Transposal%20Tool.py"
+github_url = "https://raw.githubusercontent.com/gmanuel89/SCiLS-Lab-2014-CSV-Transposal-Tool/master/SCiLS%20Lab%202014%20CSV%20Transposal%20Tool.py"
 ### GitHub URL of the program's WIKI
 github_wiki_url = "https://github.com/gmanuel89/SCiLS-Lab-2014-CSV-Transposal-Tool"
 ### Name of the file when downloaded
